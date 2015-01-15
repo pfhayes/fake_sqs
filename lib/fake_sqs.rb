@@ -11,6 +11,7 @@ require 'fake_sqs/server'
 require 'fake_sqs/version'
 require 'fake_sqs/memory_database'
 require 'fake_sqs/file_database'
+require 'fake_sqs/extended_hash'
 
 module FakeSQS
 
@@ -20,8 +21,10 @@ module FakeSQS
     app = FakeSQS::WebInterface
 
     if (log = options[:log])
-      $stdout.reopen(log, "w:utf-8")
-      $stderr.reopen(log, "w:utf-8")
+      file = File.new(log, "a+")
+      file.sync = true
+      app.use Rack::CommonLogger, file
+      app.set :log_file, file
       app.enable :logging
     end
 
